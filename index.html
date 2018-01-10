@@ -1,0 +1,194 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>ajax todo</title>
+    </head>
+    <body>
+        <div id="id-div-todo-container"></div>
+    </body>
+    <script>
+        var log = function() {
+            console.log.apply(console, arguments)
+        }
+
+        var e = function(selector) {
+            return document.querySelector(selector)
+        }
+
+        var appendHtml = function(element, html) {
+        	element.insertAdjacentHTML('beforeend', html)
+        }
+
+        var ajax = function(method, path, data, reseponseCallback) {
+            var r = new XMLHttpRequest()
+            // 设置请求方法和请求地址
+            r.open(method, path, true)
+            // 设置发送的数据的格式
+            r.setRequestHeader('Content-Type', 'application/json')
+            // 注册响应函数
+            r.onreadystatechange = function() {
+                if(r.readyState === 4) {
+                    reseponseCallback(r)
+                }
+            }
+            // 发送请求
+            r.send(data)
+        }
+
+        var init = function() {
+            var t = `
+            <input id=id-input-task>
+            <button id=id-button-add>add todo</button>
+            `
+            appendHtml(e('#id-div-todo-container'), t)
+        }
+
+        var loadTodos = function() {
+            var method = 'GET'
+            var url = '/todo/all'
+            ajax(method, url, '', function(r){
+                var todos = JSON.parse(r.response)
+                log(todos)
+                insertTodos(todos)
+            })
+        }
+
+        var todoTemplate = function(todo) {
+            var task = todo.task
+            var id = todo.id
+            var t = `
+                <div id=${id}>
+                <button class=button-delete>删除</button>
+                <button class=button-update>更新</button>
+                    <span id=task-${id}>
+                    ${task}
+                    </span>
+                </div>
+            `
+            return t
+        }
+
+        var insertTodos = function(todos) {
+            var container = e('#id-div-todo-container')
+            for (var i = 0; i < todos.length; i++) {
+                var todo = todos[i]
+                var t = todoTemplate(todo)
+                appendHtml(container, t)
+            }
+        }
+
+        var addTodo = function(data) {
+          var url = '/todo/add'
+          ajax('POST', url, '', function(r) {
+              var t = JSON.parse(r.response)
+              console.log(t)
+          })
+        }
+
+        var deleteTodo = function(todoId) {
+            var url = '/todo/delete/' + todoId
+            ajax('GET', url, '', function(r){
+                var t = JSON.parse(r.response)
+                console.log(t)
+            })
+        }
+
+        var updateTodo = function(todoId, task) {
+            var url = '/todo/update/' + todoId
+            var data = {
+                'task': task,
+            }
+            data = JSON.stringify(data)
+            ajax('POST', url, data, function(r){
+                var t = JSON.parse(r.response)
+                console.log(t)
+            })
+        }
+
+        var bindEventDelete = function() {
+            var container = e('#id-div-todo-container')
+            container.addEventListener('click', function(event){
+                var target = event.target
+                log(target.classList)
+                if(target.classList.contains('button-delete')) {
+                    log('点到了删除')
+                    var todoId = target.parentElement.id
+                    deleteTodo(todoId)
+                    target.parentElement.remove()
+                }
+            })
+        }
+
+        var bindEventAdd = function() {
+          var addButton = e('#id-button-add')
+          addButton.addEventListener('click', function(event) {
+            var data = e('#id-input-task').value
+            addTodo(data)
+          })
+        }
+
+        var addCss = function() {
+            var style = `
+            <style>
+                div {
+
+                }
+            </style>
+            `
+            var head = e('head')
+            appendHtml(head, style)
+        }
+
+        var bindEventUpdate = function() {
+            var container = e('#id-div-todo-container')
+            container.addEventListener('click', function(event){
+                var target = event.target
+                if(target.classList.contains('button-update')) {
+                    var todoId = target.parentElement.id
+                    var t = `
+                        <input id=update-${todoId}>
+                        <button class=button-submit>提交</button>
+                    `
+                    appendHtml(target.parentElement, t)
+                }
+            })
+        }
+
+        var bindEventSubmit = function() {
+            var container = e('#id-div-todo-container')
+            container.addEventListener('click', function(event){
+                var target = event.target
+                if(target.classList.contains('button-submit')) {
+                    log('submit button')
+                    var todoId = target.parentElement.id
+                    var inputId = 'update-' + todoId
+                    var selector = '#' + inputId
+                    var task = e(selector).value
+                    updateTodo(todoId, task)
+                    var taskId = 'task-' + todoId
+                    selector = '#' + taskId
+                    e(selector).innerHTML = task
+                    log('submit debug', selector, task)
+                }
+            })
+        }
+
+        var bindEvents = function() {
+            bindEventAdd()
+            bindEventDelete()
+            bindEventUpdate()
+            // 给提交按钮绑定事件
+            bindEventSubmit()
+        }
+
+        var __main = function() {
+            init()
+            loadTodos()
+            addCss()
+            bindEvents()
+        }
+
+        __main()
+
+    </script>
+</html>
