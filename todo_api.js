@@ -11,7 +11,6 @@ app.use(express.static('static'))
 app.use(bodyParse.json())
 
 var sendHtml = function(path, response) {
-    var fs = require('fs')
     var options = {
         encoding: 'utf-8'
     }
@@ -34,7 +33,6 @@ var save = function(value) {
 
 app.get('/', function(request, response) {
     var path = 'index.html'
-    var fs = require('fs')
     var options = {
         encoding: 'utf-8'
     }
@@ -50,7 +48,6 @@ var todoAdd = function(todo) {
         todo.id = todoList[todoList.length-1].id + 1
     }
     todoList.push(todo)
-    console.log(todoList, 999999999999999);
     save(todoList)
     return todo
 }

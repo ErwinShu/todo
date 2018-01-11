@@ -77,9 +77,13 @@
             }
         }
 
-        var addTodo = function(data) {
+        var addTodo = function(task) {
           var url = '/todo/add'
-          ajax('POST', url, '', function(r) {
+          var data = {
+              'task': task,
+          }
+          data = JSON.stringify(data)
+          ajax('POST', url, data, function(r) {
               var t = JSON.parse(r.response)
               console.log(t)
           })
