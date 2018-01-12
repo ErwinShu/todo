@@ -150,8 +150,10 @@
                 if(target.classList.contains('button-update')) {
                     var todoId = target.parentElement.id
                     var t = `
+                      <span class=update-${todoId}>
                         <input id=update-${todoId}>
                         <button class=button-submit>提交</button>
+                      </span>
                     `
                     appendHtml(target.parentElement, t)
                 }
@@ -164,7 +166,8 @@
                 var target = event.target
                 if(target.classList.contains('button-submit')) {
                     log('submit button')
-                    var todoId = target.parentElement.id
+                    var taskItem = target.parentElement.parentElement
+                    var todoId = taskItem.id
                     var inputId = 'update-' + todoId
                     var selector = '#' + inputId
                     var task = e(selector).value
@@ -172,6 +175,9 @@
                     var taskId = 'task-' + todoId
                     selector = '#' + taskId
                     e(selector).innerHTML = task
+                    var updateSelect = e(`.update-${todoId}`)
+                    console.log(updateSelect, 999999999);
+                    taskItem.removeChild(updateSelect)
                     log('submit debug', selector, task)
                 }
             })
