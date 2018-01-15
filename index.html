@@ -38,7 +38,7 @@
         var init = function() {
             var t = `
             <input id=id-input-task>
-            <button id=id-button-add>add todo</button>
+            <button id=id-button-add>添加</button>
             `
             appendHtml(e('#id-div-todo-container'), t)
         }
@@ -58,11 +58,11 @@
             var id = todo.id
             var t = `
                 <div id=${id}>
-                <button class=button-delete>删除</button>
-                <button class=button-update>更新</button>
-                    <span id=task-${id}>
+                  <span id=task-${id}>
                     ${task}
-                    </span>
+                  </span>
+                  <button class=button-update>更新</button>
+                  <button class=button-delete>删除</button>
                 </div>
             `
             return t
@@ -85,7 +85,7 @@
           data = JSON.stringify(data)
           ajax('POST', url, data, function(r) {
               var t = JSON.parse(r.response)
-              console.log(t)
+              insertTodos([t])
           })
         }
 
@@ -176,7 +176,6 @@
                     selector = '#' + taskId
                     e(selector).innerHTML = task
                     var updateSelect = e(`.update-${todoId}`)
-                    console.log(updateSelect, 999999999);
                     taskItem.removeChild(updateSelect)
                     log('submit debug', selector, task)
                 }
