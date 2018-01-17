@@ -56,8 +56,10 @@
         var todoTemplate = function(todo) {
             var task = todo.task
             var id = todo.id
+            var status = todo.status
             var t = `
                 <div id=${id}>
+                  <input type=checkbox class=button-checkbox ${status === 'completed' ? 'checked' : ''} />
                   <span id=task-${id}>
                     ${task}
                   </span>
@@ -80,6 +82,7 @@
         var addTodo = function(task) {
           var url = '/todo/add'
           var data = {
+              'status': 'processing',
               'task': task,
           }
           data = JSON.stringify(data)
@@ -93,19 +96,18 @@
             var url = '/todo/delete/' + todoId
             ajax('GET', url, '', function(r){
                 var t = JSON.parse(r.response)
-                console.log(t)
             })
         }
 
-        var updateTodo = function(todoId, task) {
-            var url = '/todo/update/' + todoId
+        var updateTodo = function(query) {
+            var url = '/todo/update/' + query.todoId
             var data = {
-                'task': task,
+                'status': query.status,
+                'task': query.task,
             }
             data = JSON.stringify(data)
-            ajax('POST', url, data, function(r){
+            ajax('PUT', url, data, function(r){
                 var t = JSON.parse(r.response)
-                console.log(t)
             })
         }
 
@@ -156,6 +158,12 @@
                       </span>
                     `
                     appendHtml(target.parentElement, t)
+                } else if (target.classList.contains('button-checkbox')) {
+                  var todoItem = target.parentElement
+                  var todoId = todoItem.id
+                  var task = e(`#task-${todoId}`).innerHTML.trim()
+                  var status = !todoItem.querySelector('input').checked ? 'processing' : 'completed'
+                  updateTodo({todoId, task, status})
                 }
             })
         }
@@ -171,7 +179,8 @@
                     var inputId = 'update-' + todoId
                     var selector = '#' + inputId
                     var task = e(selector).value
-                    updateTodo(todoId, task)
+                    var status = taskItem.querySelector('.button-checkbox').checked ? 'completed' : 'processing'
+                    updateTodo({todoId, task, status})
                     var taskId = 'task-' + todoId
                     selector = '#' + taskId
                     e(selector).innerHTML = task

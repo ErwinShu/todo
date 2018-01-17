@@ -58,6 +58,7 @@ var todoUpdate = function(todo) {
         var t = todoList[i]
         if(t.id == id) {
             t.task = todo.task
+            t.status = todo.status
             return t
         }
     }
@@ -103,10 +104,11 @@ app.post('/todo/add', function(request, response) {
     sendJSON(response, t)
 })
 
-app.post('/todo/update/:id', function(request, response) {
+app.put('/todo/update/:id', function(request, response) {
     var id = request.params.id
     console.log('update', id, typeof id)
     var todo = request.body
+    todo.id = id
     var t = todoUpdate(todo)
     sendJSON(response, t)
 })
